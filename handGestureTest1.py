@@ -1,11 +1,13 @@
+#handlm: hand landmarks
+#mpHands.HAND_CONNECTIONS: connecting co-ordinates of plotted points. 
+#h , w, c: height, width, channel.
+
 import cv2, time
 import mediapipe as mp
-
-cap = cv2.VideoCapture(0)
-
-mpHands = mp.solutions.hands #used for detecting the hand (it is a class)
+cap = cv2.VideoCapture(0) #using primary camera
+mpHands = mp.solutions.hands 
 hands = mpHands.Hands()
-mpDraw = mp.solutions.drawing_utils #for drawing the points on the detected hand
+mpDraw = mp.solutions.drawing_utils #Ploting points on detected hand img.
 #Calculating frame rate
 pTime = 0 
 cTime = 0
@@ -14,23 +16,14 @@ while True:
     imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     result = hands.process(imgRGB)
     # print(result.multi_hand_landmarks)
-
-    #handlm: for marking the points on hand
-    #mpHands.HAND_CONNECTIONS: to draw the connection btw the detected points
-    #h , w, c: height, width, channel.
     if result.multi_hand_landmarks:
         for handLm in result.multi_hand_landmarks:
             for id, lnd in enumerate(handLm):
                 h, w, c = img.shape     #get in terms of ratio
-                cx, cy = int(lnd.x*w), int(lnd.y*h)
-                # print(id, cx, cy)
-                #now here using id we can extract and track movements of hand\fingers to performs some task
-                #example: tracking the thumb top part (index)
+                cx, cy = int(lnd.x*w), int(lnd.y*h)     #now here using id we can extract and track movements of hand\fingers to performs some task; example: tracking the thumb top part (using index)
                 if id==4:
                     cv2.circle(img, (cx, cy), 15, (255, 0, 255),  cv2.FILLED )
-                
             mpDraw.draw_landmarks(img, handLm, mpHands.HAND_CONNECTIONS) 
-
     cTime = time.time()
     fps = 1/(cTime-pTime)
     pTime = cTime
